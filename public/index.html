@@ -16,6 +16,7 @@
 
     <!-- initialize the SDK after all desired features are loaded -->
 	<script defer src="/__/firebase/init.js"></script>
+	<script src="balance-changes.js"></script>
 
     <style media="screen">
       body { background: #ECEFF1; color: rgba(0,0,0,0.87); font-family: Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
@@ -31,6 +32,7 @@
         body { border-top: 16px solid #ffa100; }
       }
     </style>
+	<link rel="stylesheet" type="text/css" href="styles.css" />
   </head>
   <body style="margin: 20px 10px;">
 
@@ -55,35 +57,6 @@
     <p id="load">Firebase SDK Loading&hellip;</p>
 
     <script>
-		function buildBalanceChangeHero(firebaseHeroDoc) {
-			let doc = firebaseHeroDoc.data(), h = { id: firebaseHeroDoc.id };
-			h.changes = doc.changes;
-			h.description = doc.description;
-			return h;
-		}
-
-		function addBalanceChange(hero) {
-			var balanceChangesUL = document.getElementsByClassName("balance-changes")[0];
-			var heroLI = document.createElement("li");
-			heroLI.appendChild(document.createTextNode(hero.id));
-			var heroChangesUL = document.createElement("ul");
-			if (hero.changes) {
-				hero.changes.forEach(change => {
-					var changeLI = document.createElement("li");
-					changeLI.appendChild(document.createTextNode(change.description));
-					heroChangesUL.appendChild(changeLI);
-				});
-				heroLI.appendChild(heroChangesUL);
-			}
-			balanceChangesUL.appendChild(heroLI);
-			document.heroes[hero.id] = heroLI;
-		}
-
-		function addChanges(firebaseHeroDoc) {
-			console.log('addChanges: firebaseHeroDoc: ', firebaseHeroDoc.id, firebaseHeroDoc.data());
-			addBalanceChange(buildBalanceChangeHero(firebaseHeroDoc));
-		}
-
 
       document.addEventListener('DOMContentLoaded', function() {
         // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
@@ -106,35 +79,8 @@
 			// ####################################################
 			// My code starts here
 
-			document.heroes = {};
-
-			var db = firebase.firestore();
-			/*
-			db.collection("heroes").get().then((querySnapshot) => {
-				querySnapshot.forEach((doc) => {
-					console.log(`${doc.id} => ${doc.data()}`);
-
-					addChanges(doc);
-				});
-			});
-			*/
-
-			db.collection("heroes")
-				.onSnapshot(snapshot => {
-					snapshot.docChanges().forEach(function(change) {
-						if (change.type === "added") {
-							console.log("New Hero: ", change.doc.id);
-							addChanges(change.doc);
-						}
-						if (change.type === "modified") {
-							console.log("Modified Hero: ", change.doc.id);
-						}
-						if (change.type === "removed") {
-							console.log("Removed Hero: ", change.doc.id);
-						}
-					});
-				});
-
+			// balance-changes.js
+			listenForBalanceChanges();
         } catch (e) {
           console.error(e);
           document.getElementById('load').innerHTML = 'Error loading the Firebase SDK, check the console.';
